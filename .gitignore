@@ -1,0 +1,208 @@
+# ============================================
+# PhoneAgent .gitignore
+# ============================================
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 商业化功能组件（暂不开源）
+web/src/components/MultiDevicePreview.vue
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+
+# ============================================
+# Virtual Environment
+# ============================================
+venv/
+ENV/
+env/
+autoglm_venv/
+
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# Database
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/phoneagent.db
+data/client_device.db
+
+# ============================================
+# Logs (运行时生成)
+# ============================================
+logs/*.log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# 保留 logs 目录结构
+!logs/.gitkeep
+
+# ============================================
+# Node.js / Frontend
+# ============================================
+node_modules/
+.npm
+.yarn/
+dist/
+web/dist/
+package-lock.json
+
+# ============================================
+# Screenshots and Media
+# ============================================
+data/screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+!docs/images/*.png
+!docs/images/*.jpg
+!assets/images/*.png
+!assets/images/*.jpg
+!assets/images/*.jpeg
+!assets/qrcode/*.png
+!assets/qrcode/*.jpg
+!assets/qrcode/*.jpeg
+
+# ============================================
+# Data Folder (保留配置模板和默认配置)
+# ============================================
+data/*
+!data/.gitkeep
+!data/README.md
+# 配置模板（示例文件）
+!data/app_config.example.json
+!data/anti_detection_config.example.json
+# 默认配置（直接可用）
+!data/app_config.json
+!data/anti_detection_config.json
+!data/shortcuts.json
+!data/prompt_cards.json
+
+# ============================================
+# Third-party SDKs and Projects (不开源)
+# ============================================
+AIKit_AEE_Android_IVW_*/
+android-action-kernel-main/
+gelab-zero-main/
+
+# ============================================
+# Commercial Content (商业版内容)
+# ============================================
+commercial/
+docs/commercial/
+docs/opensouce_prepare/
+docs/archived/
+docs/analysis/
+docs/dev/
+.kiro/
+
+# ============================================
+# Internal Documentation (内部文档)
+# ============================================
+# 开源版本暂不推送docs（内容太多太乱，待整理）
+docs/
+!docs/.gitkeep
+docs/design/
+docs/standard/
+docs/QUICK_FIX_GUIDE.md
+docs/WEBSOCKET_DEVICE_SYNC_SOLUTION.md
+docs/TIMEOUT_OPTIMIZATION_GUIDE.md
+docs/ANTI_DETECTION_USAGE.md
+docs/VOICE_AI_ASSISTANT_DESIGN.md
+docs/ANDROID_APP_ANALYSIS_SUMMARY.md
+docs/API_REFERENCE.md
+docs/ARCHITECTURE_EVALUATION_AND_IMPROVEMENTS.md
+docs/CONFIG_FILES_EXPLAINED.md
+docs/CORE_ARCHITECTURE.md
+docs/DEPLOYMENT_OPTIONS.md
+docs/ENV_CONFIG.md
+docs/README.md
+docs/SCRCPY_INTEGRATION.md
+docs/TECHNICAL_QA_AND_SOLUTIONS.md
+docs/deployment/DEPLOYMENT_GUIDE.md
+PRE_OPENSOURCE_TEST_CHECKLIST.md
+OPENSOURCE_CHECKLIST.md
+SENSITIVE_INFO_CHECK_REPORT.md
+ORIGINAL_CODE_ATTRIBUTION_GUIDE.md
+COPYRIGHT_HEADER_TEMPLATE.md
+*测试*.md
+*需求*.md
+*分析*.md
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+
+# ============================================
+# FRP
+# ============================================
+frp_*/
+frpc
+frps
+*.ini
+!frps.ini.example
+
+# ============================================
+# Android (暂不开源)
+# ============================================
+android-app/
+*.apk
+*.aab
+
+# ============================================
+# Git Credentials
+# ============================================
+.git-credentials
+
+# ============================================
+# GitHub Actions (保留workflow配置)
+# ============================================
+# .github/ 文件夹保留，但忽略某些临时文件
+.github/**/*.log

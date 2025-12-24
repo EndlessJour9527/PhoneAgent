@@ -1,0 +1,72 @@
+name: "\U0001F41B Bug Report"
+description: Submit a bug report to help us improve Open-AutoGLM / 鎻愪氦涓€涓?Bug 闂鎶ュ憡鏉ュ府鍔╂垜浠敼杩?Open-AutoGLM
+body:
+  - type: textarea
+    id: system-info
+    attributes:
+      label: System Info / 绯荤当淇℃伅
+      description: Your operating environment / 鎮ㄧ殑杩愯鐜淇℃伅
+      placeholder: Includes Cuda version, Transformers version, Python version, operating system, hardware information (if you suspect a hardware problem)... / 鍖呮嫭Cuda鐗堟湰锛孴ransformers鐗堟湰锛孭ython鐗堟湰锛屾搷浣滅郴缁燂紝纭欢淇℃伅(濡傛灉鎮ㄦ€€鐤戞槸纭欢鏂归潰鐨勯棶棰?...
+    validations:
+      required: true
+
+  - type: textarea
+    id: who-can-help
+    attributes:
+      label: Who can help? / 璋佸彲浠ュ府鍔╁埌鎮紵
+      description: |
+        Your issue will be replied to more quickly if you can figure out the right person to tag with @
+        All issues are read by one of the maintainers, so if you don't know who to tag, just leave this blank and our maintainer will ping the right person.
+
+        Please tag fewer than 3 people.
+
+        濡傛灉鎮ㄨ兘鎵惧埌鍚堥€傜殑鏍囩 @锛屾偍鐨勯棶棰樹細鏇村揩寰楀埌鍥炲銆?
+        鎵€鏈夐棶棰橀兘浼氱敱鎴戜滑鐨勭淮鎶よ€呴槄璇伙紝濡傛灉鎮ㄤ笉鐭ラ亾璇ユ爣璁拌皝锛屽彧闇€鐣欑┖锛屾垜浠殑缁存姢浜哄憳浼氭壘鍒板悎閫傜殑寮€鍙戠粍鎴愬憳鏉ヨВ鍐抽棶棰樸€?
+
+        鏍囪鐨勪汉鏁板簲璇ヤ笉瓒呰繃 3 涓汉銆?
+
+        If it's not a bug in these three subsections, you may not specify the helper. Our maintainer will find the right person in the development group to solve the problem.
+
+        濡傛灉涓嶆槸杩欎笁涓瓙鐗堝潡鐨刡ug锛屾偍鍙互涓嶆寚鏄庡府鍔╄€咃紝鎴戜滑鐨勭淮鎶や汉鍛樹細鎵惧埌鍚堥€傜殑寮€鍙戠粍鎴愬憳鏉ヨВ鍐抽棶棰樸€?
+
+      placeholder: "@Username ..."
+
+  - type: checkboxes
+    id: information-scripts-examples
+    attributes:
+      label: Information / 闂淇℃伅
+      description: 'The problem arises when using: / 闂鍑虹幇鍦?
+      options:
+        - label: "The official example scripts / 瀹樻柟鐨勭ず渚嬭剼鏈?
+        - label: "My own modified scripts / 鎴戣嚜宸变慨鏀圭殑鑴氭湰鍜屼换鍔?
+
+  - type: textarea
+    id: reproduction
+    validations:
+      required: true
+    attributes:
+      label: Reproduction / 澶嶇幇杩囩▼
+      description: |
+        Please provide a code example that reproduces the problem you encountered, preferably with a minimal reproduction unit.
+        If you have code snippets, error messages, stack traces, please provide them here as well.
+        Please format your code correctly using code tags. See https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
+        Do not use screenshots, as they are difficult to read and (more importantly) do not allow others to copy and paste your code.
+
+        璇锋彁渚涜兘閲嶇幇鎮ㄩ亣鍒扮殑闂鐨勪唬鐮佺ず渚?鏈€濂芥槸鏈€灏忓鐜板崟鍏冦€?
+        濡傛灉鎮ㄦ湁浠ｇ爜鐗囨銆侀敊璇俊鎭€佸爢鏍堣窡韪紝涔熻鍦ㄦ鎻愪緵銆?
+        璇蜂娇鐢ㄤ唬鐮佹爣绛炬纭牸寮忓寲鎮ㄧ殑浠ｇ爜銆傝鍙傝 https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks#syntax-highlighting
+        璇峰嬁浣跨敤鎴浘锛屽洜涓烘埅鍥鹃毦浠ラ槄璇伙紝鑰屼笖锛堟洿閲嶈鐨勬槸锛変笉鍏佽浠栦汉澶嶅埗绮樿创鎮ㄧ殑浠ｇ爜銆?
+      placeholder: |
+        Steps to reproduce the behavior/澶嶇幇Bug鐨勬楠?
+
+          1.
+          2.
+          3.
+
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: Expected behavior / 鏈熷緟琛ㄧ幇
+      description: "A clear and concise description of what you would expect to happen. /绠€鍗曟弿杩版偍鏈熸湜鍙戠敓鐨勪簨鎯呫€?

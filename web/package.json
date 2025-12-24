@@ -1,0 +1,30 @@
+{
+  "name": "phoneagent-web",
+  "version": "1.0.0",
+  "description": "PhoneAgent Web UI - AI-powered phone automation",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview --host 0.0.0.0 --port 5173",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.6.5",
+    "element-plus": "^2.12.0",
+    "jmuxer": "^2.1.0",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.20.1",
+    "vite": "^5.0.11"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.53.3"
+  }
+}

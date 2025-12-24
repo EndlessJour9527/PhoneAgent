@@ -1,0 +1,133 @@
+[project]
+name = "phoneagent"
+version = "1.0.0"
+description = "AI-powered Android automation platform - Next-generation super AI assistant"
+authors = [
+    {name = "PhoneAgent Team"}
+]
+license = {text = "AGPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["ai", "android", "automation", "agent", "rpa"]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+]
+
+dependencies = [
+    # Core dependencies (phone_agent)
+    "Pillow>=10.0.0",        # Image processing
+    "openai>=1.0.0",         # AI model SDK (ZhipuAI compatible)
+    
+    # Server dependencies  
+    "fastapi>=0.109.0",      # Web framework
+    "uvicorn[standard]>=0.27.0",  # ASGI server
+    "python-multipart>=0.0.6",    # File upload
+    "websockets>=12.0",      # WebSocket server
+    "python-dotenv>=1.0.0",  # Environment variables
+    "pydantic>=2.5.0",       # Data validation
+    "pydantic-settings>=2.1.0",   # Settings management
+    "pydub>=0.25.1",         # Audio processing (requires ffmpeg)
+    "httpx>=0.24.0",         # HTTP client
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0.0",
+]
+
+# Optional AI providers
+anthropic = ["anthropic>=0.18.0"]
+
+[project.urls]
+Homepage = "https://github.com/tmwgsicp/PhoneAgent"
+Documentation = "https://github.com/tmwgsicp/PhoneAgent/docs"
+Repository = "https://github.com/tmwgsicp/PhoneAgent"
+Issues = "https://github.com/tmwgsicp/PhoneAgent/issues"
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["phone_agent*", "server*"]
+exclude = ["tests*", "docs*", "scripts*"]
+
+[tool.setuptools.package-data]
+phone_agent = ["py.typed"]
+server = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=phone_agent --cov=server --cov-report=html --cov-report=term"
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | \.mypy_cache
+  | \.pytest_cache
+  | __pycache__
+  | build
+  | dist
+  | node_modules
+)/
+'''
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]  # Line too long
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]  # Unused imports
+
+[tool.coverage.run]
+source = ["phone_agent", "server"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+

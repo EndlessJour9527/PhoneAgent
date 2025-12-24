@@ -1,0 +1,123 @@
+[
+  {
+    "id": "sys_wechat_check",
+    "title": "查看微信消息",
+    "instruction": "打开微信，查看最新的未读消息",
+    "category": "社交",
+    "is_system": true,
+    "voice_keywords": [
+      "查看微信",
+      "看微信",
+      "微信消息"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_douyin_browse",
+    "title": "刷抖音",
+    "instruction": "打开抖音，刷5个视频",
+    "category": "娱乐",
+    "is_system": true,
+    "voice_keywords": [
+      "刷抖音",
+      "看抖音",
+      "抖音"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_traffic_check",
+    "title": "查询违章",
+    "instruction": "打开交管12123，查询违章情况",
+    "category": "生活",
+    "is_system": true,
+    "voice_keywords": [
+      "查违章",
+      "查询违章",
+      "违章查询",
+      "交管"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_alipay_scan",
+    "title": "支付宝扫码",
+    "instruction": "打开支付宝，进入扫一扫",
+    "category": "支付",
+    "is_system": true,
+    "voice_keywords": [
+      "支付宝扫码",
+      "扫一扫",
+      "支付宝"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_taobao_cart",
+    "title": "查看购物车",
+    "instruction": "打开淘宝，进入购物车查看",
+    "category": "购物",
+    "is_system": true,
+    "voice_keywords": [
+      "购物车",
+      "淘宝购物车",
+      "看购物车"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_map_home",
+    "title": "导航回家",
+    "instruction": "打开高德地图，导航到家",
+    "category": "出行",
+    "is_system": true,
+    "voice_keywords": [
+      "导航回家",
+      "回家",
+      "回家导航"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_music_play",
+    "title": "播放音乐",
+    "instruction": "打开网易云音乐，播放我喜欢的音乐",
+    "category": "娱乐",
+    "is_system": true,
+    "voice_keywords": [
+      "播放音乐",
+      "听歌",
+      "放歌"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  },
+  {
+    "id": "sys_screenshot",
+    "title": "截图分享",
+    "instruction": "截取当前屏幕，打开微信分享给好友",
+    "category": "工具",
+    "is_system": true,
+    "voice_keywords": [
+      "截图分享",
+      "截图",
+      "分享截图"
+    ],
+    "created_at": "2025-12-19T04:41:09.653128",
+    "updated_at": "2025-12-19T04:41:09.653128",
+    "use_count": 0
+  }
+]

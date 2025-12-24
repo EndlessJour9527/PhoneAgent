@@ -1,0 +1,30 @@
+# ============================================
+# PhoneAgent - Python 依赖
+# ============================================
+# 系统依赖 ffmpeg 会由部署脚本自动安装
+# 手动安装: bash scripts/install/install_server.sh
+# ============================================
+
+# AI 模型
+openai>=1.0.0
+httpx>=0.27.0
+
+# 图像处理
+Pillow>=10.0.0
+
+# Web 框架
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+websockets>=12.0
+
+# 数据验证和配置
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# 数据库
+sqlalchemy>=2.0.0
+
+# 音频处理
+pydub>=0.25.1

@@ -1,0 +1,30 @@
+GNU LESSER GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+
+This version of the GNU Lesser General Public License incorporates
+the terms and conditions of version 3 of the GNU General Public
+License, supplemented by the additional permissions listed below.
+
+[完整的 LGPL-3.0 许可证文本省略，请从官方获取]
+
+Official License: https://www.gnu.org/licenses/lgpl-3.0.txt
+
+---
+
+# yadb 归属说明
+
+**项目**: yadb - ADB Function Enhancement Tool  
+**作者**: ysbing  
+**官方仓库**: https://github.com/ysbing/YADB  
+**许可证**: LGPL-3.0
+
+**PhoneAgent 使用说明**:
+- 本项目通过 subprocess 调用 yadb（动态链接）
+- PhoneAgent 代码不受 LGPL 传染，保持 AGPL-3.0 许可
+- 未修改 yadb 源码，使用官方二进制文件
+
