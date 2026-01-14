@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/footer_brand"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_large">
+
+        <!-- Logo/Icon -->
+        <ImageView
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:src="@drawable/ic_notification"
+            app:tint="@color/primary" />
+
+        <!-- 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="PhoneAgent Remote"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.H1" />
+
+        <!-- 副标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="一键配置，轻松实现远程控制"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary" />
+
+        <!-- 配置卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Theme.PhoneAgentRemote.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 标题 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="服务器配置"
+                    android:textAppearance="@style/TextAppearance.PhoneAgentRemote.H2" />
+
+
+
+                <!-- 后端服务器 IP -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_server_ip"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:hint="后端服务器 IP"
+                    app:helperText="格式: 192.168.1.100"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_server_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- FRP Token -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_frp_token"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:hint="FRP Token"
+                    app:helperText="与服务器配置保持一致"
+                    app:helperTextEnabled="true"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_frp_token"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- 远程端口 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_remote_port"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:hint="FRP远程端口"
+                    app:helperText="FRP分配的唯一端口，如6100、6101等"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_remote_port"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- WebSocket 连接方式 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_large"
+                    android:text="WebSocket 连接方式"
+                    android:textAppearance="@style/TextAppearance.PhoneAgentRemote.H2" />
+
+                <RadioGroup
+                    android:id="@+id/rg_ws_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rb_direct_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="直连IP模式（推荐）"
+                        android:checked="true"
+                        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="适合: 内网环境、开发测试"
+                        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                        android:textColor="@color/text_secondary" />
+
+                    <RadioButton
+                        android:id="@+id/rb_domain_proxy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="域名代理模式"
+                        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="4dp"
+                        android:text="适合: 生产环境、需要SSL加密\n注意: 需配置Nginx反向代理"
+                        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                        android:textColor="@color/text_secondary" />
+                </RadioGroup>
+
+                <!-- 域名输入框（仅域名代理模式显示） -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_ws_domain"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:hint="域名地址"
+                    app:helperText="格式: phoneagent.example.com"
+                    app:helperTextEnabled="true"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_ws_domain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- 设备名称 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_device_name"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:hint="设备名称（可选）"
+                    app:helperText="留空将自动生成"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_device_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 说明文字 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="提示：首次启动需要通过 USB 连接电脑并执行 adb tcpip 5555 命令以启用 ADB TCP/IP 模式"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+            android:textColor="@color/status_warning" />
+
+        <!-- 开始按钮 -->
+        <Button
+            android:id="@+id/btn_finish"
+            style="@style/Theme.PhoneAgentRemote.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="完成配置并启动" />
+        
+        <!-- 底部间距,确保内容不会被 Footer 遮挡 -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/spacing_large" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Footer with Brand -->
+    <LinearLayout
+        android:id="@+id/footer_brand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/spacing_medium"
+        android:paddingBottom="@dimen/spacing_medium"
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingEnd="@dimen/spacing_medium"
+        android:background="@color/background"
+        app:layout_constraintTop_toBottomOf="@id/scroll_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/spacing_small"
+            android:background="@color/divider" />
+
+        <!-- Powered by -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/footer_powered_by"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+            android:textColor="@color/text_secondary" />
+
+        <!-- License Info -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="2dp"
+            android:text="@string/footer_opensource"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+            android:textColor="@color/text_hint"
+            android:textSize="9sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

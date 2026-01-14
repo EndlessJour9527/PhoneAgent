@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PhoneAgent Remote</string>
+    <string name="notification_title">PhoneAgent 远程控制</string>
+    <string name="notification_text">服务运行中</string>
+    
+    <!-- Brand Information -->
+    <string name="brand_name">tmwgsicp</string>
+    <string name="brand_full_name">PhoneAgent Remote by tmwgsicp</string>
+    <string name="brand_github">https://github.com/tmwgsicp</string>
+    <string name="brand_project_url">https://github.com/tmwgsicp/PhoneAgent</string>
+    <string name="brand_copyright">Copyright © 2025 tmwgsicp. All rights reserved.</string>
+    <string name="brand_license">Licensed under AGPL-3.0</string>
+    
+    <!-- About -->
+    <string name="about_title">关于</string>
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_description">PhoneAgent Remote 是 PhoneAgent 项目的配套 Android 客户端，通过 FRP 隧道建立远程 ADB 连接，配合服务端实现 AI 智能手机控制。支持中文输入、强制截图等增强功能。</string>
+    <string name="about_main_project">主项目：PhoneAgent</string>
+    <string name="about_main_project_url">https://github.com/tmwgsicp/PhoneAgent</string>
+    
+    <!-- Footer Call to Action -->
+    <string name="footer_powered_by">Powered by tmwgsicp</string>
+    <string name="footer_opensource">开源项目 · 遵循 AGPL-3.0 协议</string>
+    
+    <!-- About Dialog - 详细信息 -->
+    <string name="about_star_cta">⭐ 如果觉得有用，请给个 Star 支持一下！</string>
+    <string name="about_business_wechat">微信：SZJishere</string>
+    <string name="about_github_profile">github.com/tmwgsicp</string>
+    <string name="about_github_project">github.com/tmwgsicp/PhoneAgent</string>
+    
+    <!-- Log Viewer -->
+    <string name="app_name_logs">%1$s 日志</string>
+    <string name="log_clear">清除日志</string>
+    <string name="log_cleared">日志已清除</string>
+</resources>
+

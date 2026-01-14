@@ -106,7 +106,7 @@ PhoneAgent 采用**双 WebSocket 服务**架构：
              ↓                 ↓                  ↓           ↓
     ┌────────────────┐ ┌─────────────────┐ ┌──────────┐ ┌──────────┐
     │  API 服务器     │ │ WebSocket 服务器│ │FRP 服务器│ │  设备端  │
-    │   (8000端口)    │ │   (9999端口)    │ │(7000端口)│ │ (Termux) │
+    │   (8000端口)    │ │   (9999端口)    │ │(7000端口)│ │(Remote)  │
     │                 │ │                 │ │          │ │          │
     │ • REST API      │ │ • 设备连接管理  │ │ • ADB转发│ │ • ADB执行│
     │ • 前端WS        │ │ • 任务下发      │ │ • 端口穿透│ │ • 状态上报│
@@ -167,7 +167,7 @@ PhoneAgent 采用**双 WebSocket 服务**架构：
 </table>
 </div>
 
-**定位**：可选的语音交互入口，配合 Termux 使用
+**定位**：可选的语音交互入口，配合 PhoneAgent Remote 使用
 
 **功能**：
 - 🎙️ 语音唤醒 - "你好BT"唤醒系统
@@ -241,8 +241,8 @@ PhoneAgent 采用**双 WebSocket 服务**架构：
   - `6100-6199` - FRP 客户端端口范围（每台设备占用1个）
 
 **Android 设备**：
-- Android 7.0+，已开启 USB 调试
-- 已安装 Termux（从 [F-Droid](https://f-droid.org/packages/com.termux/) 下载）
+- Android 5.0+，已开启 USB 调试
+- 下载并安装 PhoneAgent Remote APK（见下方客户端部署）
 
 ### 10分钟部署
 
@@ -260,21 +260,30 @@ nano .env  # 填写 ZHIPU_API_KEY
 sudo bash scripts/install/install_server.sh
 ```
 
-#### 2️⃣ 客户端（Termux）
+#### 2️⃣ 客户端（PhoneAgent Remote）
 
-```bash
-bash <(curl -s https://cdn.jsdelivr.net/gh/tmwgsicp/PhoneAgent@main/client/install_termux.sh)
-```
+**下载安装 APK**：
 
-**安装过程需要输入 4 个参数**：
-1. 后端服务器IP
-2. FRP Token（与服务端一致）
-3. 连接方式（1=直连IP / 2=域名代理）
-4. 前端访问地址（IP或域名）
+1. 前往 [Releases 页面](https://github.com/tmwgsicp/PhoneAgent/releases/latest) 下载最新版本 APK
+2. 安装到 Android 设备（支持 Android 5.0+）
+
+**配置应用**：
+
+打开应用，填写以下信息：
+
+| 配置项 | 说明 | 示例 |
+|-------|------|------|
+| **后端服务器 IP** | PhoneAgent 服务器的 IP 地址 | `192.168.1.100` |
+| **FRP Token** | 与服务端配置保持一致 | （填写你的 token） |
+| **FRP 远程端口** | 每台设备使用唯一端口 | `6100`、`6101` 等 |
+| **WebSocket 连接方式** | 推荐选择"直连 IP 模式" | 直连 IP 模式 |
+| **域名地址**（可选） | 仅域名代理模式需要 | `phoneagent.example.com` |
+
+点击"保存并启动"。
 
 **⚠️ 首次部署重要步骤**（必须执行，否则无法连接）：
 
-部署脚本完成后，**需要在电脑上执行以下命令**让手机的ADB守护进程监听TCP端口：
+安装完成后，**需要在电脑上执行以下命令**让手机的ADB守护进程监听TCP端口：
 
 **前置要求**：电脑需要先安装 ADB 工具
 
@@ -326,6 +335,7 @@ adb tcpip 5555
 **说明**：
 - 这个配置会在**手机重启后失效**，需要重新执行
 - 如果不执行此步骤，服务端会显示设备 `offline`
+- 详细使用说明请查看 [android-remote-control/README.md](android-remote-control/README.md)
 
 #### 3️⃣ 前端
 
@@ -407,7 +417,7 @@ CUSTOM_MODEL_NAME=qwen-vl-plus
 | **前端** | Vue 3 + Vite + Element Plus + Pinia |
 | **后端** | FastAPI + SQLite + WebSocket + FRP |
 | **AI** | AutoGLM-Phone / GLM-4.6v系列 / OpenAI-Compatible |
-| **终端** | Termux + ADB + Scrcpy |
+| **客户端** | PhoneAgent Remote (Android) + ADB + Scrcpy |
 | **执行引擎** | 逐步执行 + 智能规划（Beta）|
 
 ---
@@ -522,7 +532,7 @@ PhoneAgent 可以控制你的 Android 设备执行自动化操作，使用前请
 - **[Vue.js](https://vuejs.org/)** - 前端框架
 - **[FastAPI](https://fastapi.tiangolo.com/)** - 后端框架
 - **[Element Plus](https://element-plus.org/)** - UI 组件库
-- **[Termux](https://termux.dev/)** - Android 终端
+- **[Termux](https://termux.dev/)** - Android 终端环境（用于 Remote 客户端）
 
 感谢所有开源贡献者！🙏
 

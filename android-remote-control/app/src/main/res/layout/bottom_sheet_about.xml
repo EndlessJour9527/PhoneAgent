@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_large"
+    android:background="@color/surface">
+
+    <!-- 头部区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="@dimen/spacing_large">
+
+        <!-- 应用图标 -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="App Icon" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/spacing_medium">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.H1"
+                android:textColor="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/tv_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="v1.0.0"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                android:textColor="@color/text_secondary" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- 项目描述 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PhoneAgent 的配套 Android 客户端，让 AI 轻松控制你的手机。"
+        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+        android:textColor="@color/text_secondary"
+        android:lineSpacingMultiplier="1.3"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- 核心功能 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="核心功能"
+        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.H3"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="@dimen/spacing_small" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/spacing_medium">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔗 FRP 隧道 - 自动建立内网穿透"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💬 实时通信 - 通过 WebSocket 保持连接"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🛡️ 后台保活 - 前台服务 + WorkManager"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎨 现代界面 - Material Design 3 设计"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔌 跨应用通信 - 支持与其他应用集成"
+            android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+            android:textColor="@color/text_secondary"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+    </LinearLayout>
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- 项目信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/spacing_medium">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="作者"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="tmwgsicp"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+                android:textColor="@color/text_primary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="开源协议"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AGPL-3.0"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+                android:textColor="@color/text_primary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="作者主页"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/tv_github_profile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/about_github_profile"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+                android:textColor="@color/primary"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="商务合作"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/tv_business_contact"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/about_business_wechat"
+                android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+                android:textColor="@color/primary"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 商务合作提示 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💼 点击微信号可复制，欢迎技术交流与商务合作"
+        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+        android:textColor="@color/text_tertiary"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- Star CTA -->
+    <TextView
+        android:id="@+id/tv_star_cta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_star_cta"
+        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Body"
+        android:textColor="@color/primary"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:padding="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium" />
+
+    <!-- 操作按钮 -->
+    <Button
+        android:id="@+id/btn_github"
+        style="@style/Theme.PhoneAgentRemote.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="访问 GitHub 项目"
+        android:drawableStart="@android:drawable/ic_menu_view"
+        android:drawableTint="@android:color/white"
+        android:layout_marginBottom="@dimen/spacing_small" />
+
+    <Button
+        android:id="@+id/btn_close"
+        style="@style/Theme.PhoneAgentRemote.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="关闭" />
+
+    <!-- 版权信息 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:text="© 2025 tmwgsicp. All rights reserved."
+        android:textAppearance="@style/TextAppearance.PhoneAgentRemote.Caption"
+        android:textColor="@color/text_tertiary"
+        android:gravity="center" />
+
+</LinearLayout>
+

@@ -5,6 +5,7 @@
 
 # Shell脚本：强制使用LF
 *.sh text eol=lf
+gradlew text eol=lf
 
 # Python脚本：强制使用LF  
 *.py text eol=lf

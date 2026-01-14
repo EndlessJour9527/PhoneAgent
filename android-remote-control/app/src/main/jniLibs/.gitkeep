@@ -1,0 +1,5 @@
+# 这个目录用于存放预编译的 .so 文件
+# 如果 Gradle 自动编译失败，可以手动将 .so 文件放到这里：
+# - jniLibs/arm64-v8a/libdummy.so
+# - jniLibs/armeabi-v7a/libdummy.so
+

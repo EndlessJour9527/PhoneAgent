@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- 前台服务权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- 开机自启权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- 保持唤醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- JobScheduler 权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".PhoneAgentRemoteApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PhoneAgentRemote"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        
+        <!-- 主界面 -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PhoneAgentRemote">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- 配置向导 -->
+        <activity
+            android:name=".ui.SetupWizardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PhoneAgentRemote" />
+        
+        <!-- 日志查看器 -->
+        <activity
+            android:name=".ui.LogViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PhoneAgentRemote" />
+        
+        <!-- 远程控制服务（主进程）-->
+        <service
+            android:name=".core.RemoteControlService"
+            android:process=":main"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- 守护服务（独立进程）-->
+        <service
+            android:name=".keepalive.GuardService"
+            android:process=":guard"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- 1 像素保活 Activity -->
+        <activity
+            android:name=".keepalive.KeepAliveActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        
+        <!-- JobScheduler 保活服务 -->
+        <service
+            android:name=".keepalive.KeepAliveJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
+        
+        <!-- 开机自启接收器 -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- 屏幕状态接收器 -->
+        <receiver
+            android:name=".keepalive.ScreenStateReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- 配置共享 Provider（允许 Voice App 查询配置信息）-->
+        <provider
+            android:name=".provider.RemoteConfigProvider"
+            android:authorities="com.phoneagent.remote.provider"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+        
+    </application>
+
+</manifest>
+
