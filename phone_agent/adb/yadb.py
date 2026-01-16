@@ -71,6 +71,7 @@ def _build_adb_cmd(device_id: str = None, adb_host: str = None, adb_port: int = 
     Returns:
         ADB command prefix list
     """
+    import os
     cmd = ["adb"]
     
     # FRP 隧道模式（优先）
@@ -78,6 +79,20 @@ def _build_adb_cmd(device_id: str = None, adb_host: str = None, adb_port: int = 
         cmd.extend(["-H", adb_host, "-P", str(adb_port)])
     # 直接连接模式
     elif device_id:
+        # Docker环境下，需要将localhost替换为网关IP
+        if os.path.exists("/.dockerenv") and ("localhost:" in device_id or device_id.startswith("device_")):
+            # device_6104 → 6104
+            if device_id.startswith("device_"):
+                port = device_id.replace("device_", "")
+            # localhost:6104 → 6104
+            elif ":" in device_id:
+                port = device_id.split(":")[-1]
+            else:
+                port = device_id
+            
+            # 【方案B】Docker环境：FRP隧道端口已在容器内可用，直接使用 localhost
+            device_id = f"localhost:{port}"
+        
         cmd.extend(["-s", device_id])
     
     return cmd

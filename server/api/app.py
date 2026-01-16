@@ -8,6 +8,7 @@ FastAPI Application - PhoneAgent Web API
 提供RESTful API和WebSocket服务
 """
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -49,11 +50,79 @@ async def lifespan(app: FastAPI):
     # 启动健康检查
     await device_pool.start_health_check(interval=config.HEALTH_CHECK_INTERVAL)
     
-    # 【新增】启动设备扫描器
+    # ✅ 【Docker自动连接 - 方案B】使用 localhost 连接 FRP 隧道端口
+    # FRP 端口在容器内通过 localhost 可访问（无需 host.docker.internal）
+    import os
+    import subprocess
+    
+    async def init_docker_adb_async():
+        """异步初始化Docker ADB连接（方案B：使用 localhost）"""
+        if not os.path.exists("/.dockerenv"):
+            return 0
+        
+        logger.info("🐳 Docker environment detected, initializing ADB connections via localhost...")
+        connected_count = 0
+        
+        try:
+            # 并发连接所有端口（使用 localhost，FRP 端口在容器内可直接访问）
+            async def connect_port(port: int) -> bool:
+                try:
+                    result = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: subprocess.run(
+                            ["adb", "connect", f"localhost:{port}"],
+                            capture_output=True,
+                            text=True,
+                            timeout=3
+                        )
+                    )
+                    if "connected" in result.stdout.lower():
+                        logger.debug(f"✅ ADB connected to localhost:{port}")
+                        return True
+                except (subprocess.TimeoutExpired, Exception):
+                    pass
+                return False
+            
+            # 分批并发连接（每批20个端口）
+            batch_size = 20
+            ports = list(range(6100, 6200))
+            for i in range(0, len(ports), batch_size):
+                batch = ports[i:i + batch_size]
+                results = await asyncio.gather(*[connect_port(port) for port in batch])
+                connected_count += sum(results)
+            
+            # 列出连接的设备
+            result = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: subprocess.run(["adb", "devices"], capture_output=True, text=True)
+            )
+            device_list = result.stdout.strip()
+            if "device" in device_list:
+                logger.info(f"✅ ADB devices available in container ({connected_count} connected):\n{device_list}")
+            else:
+                logger.warning("⚠️  No ADB devices found after connection attempt")
+        
+        except Exception as e:
+            logger.warning(f"⚠️  Failed to initialize ADB connections: {e}")
+        
+        return connected_count
+    
+    # ✅ 先完成Docker ADB初始化（阻塞等待，关键！）
+    docker_device_count = await init_docker_adb_async()
+    if os.path.exists("/.dockerenv"):
+        logger.info(f"✅ Docker ADB initialization completed, {docker_device_count} devices connected")
+    
+    # 【新增】启动设备扫描器（必须在 ADB 连接完成后）
     from server.services.device_scanner import get_device_scanner
     scanner = get_device_scanner()
     await scanner.start()
     logger.info("✅ Device scanner started")
+    
+    # ✅ 触发首次扫描并等待完成（确保任务创建前有设备可用）
+    logger.info("⏳ Waiting for initial device scan to complete...")
+    await scanner.scan_once()
+    online_devices = scanner.get_online_devices()
+    logger.info(f"✅ Initial scan completed, found {len(online_devices)} online devices")
     
     # ✅ 启动截图和日志清理服务
     from server.tasks.cleanup import start_cleanup_service
@@ -77,7 +146,6 @@ async def lifespan(app: FastAPI):
     logger.info("✅ WebSocket broadcast callback set for AgentService")
     
     # ✅ 启动后台状态广播任务
-    import asyncio
     async def broadcast_status_updates():
         """定期广播状态更新"""
         while True:

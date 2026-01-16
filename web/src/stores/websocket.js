@@ -24,19 +24,27 @@ export const useWebSocketStore = defineStore('websocket', () => {
       return
     }
     
-    // 从环境变量获取 WebSocket 地址
+    // 从环境变量获取 WebSocket 地址（用于生产环境）
     let wsUrl = import.meta.env.VITE_WS_URL
     
-    // 如果环境变量未配置，使用当前域名构建（开发模式回退）
+    // 如果环境变量未配置，构建后端 WebSocket 地址
     if (!wsUrl) {
+      const host = window.location.hostname
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      // 根据标准文档：前端域名反向代理方案使用 /ws 路径
-      wsUrl = `${protocol}//${window.location.host}/ws`
-      console.warn('VITE_WS_URL not configured, using fallback:', wsUrl)
+      
+      // 重要：前端 WebSocket 应该连接到 API 服务器（8000 端口）的 /api/v1/ws 路径
+      // 而不是 WebSocket 服务器（9999 端口，那是用于设备连接的）
+      // 
+      // 在 Docker 中：
+      // - 前端访问地址：http://localhost:5173
+      // - API 服务器：localhost:8000（提供 REST API 和前端 WebSocket）
+      // - WebSocket 服务器：localhost:9999（仅用于设备客户端连接）
+      
+      wsUrl = `${protocol}//${host}:8000/api/v1/ws`
+      console.log('💡 Auto-connecting to API server WebSocket:', wsUrl)
     }
     
-    console.log('Connecting to WebSocket:', wsUrl)
-    
+    console.log('🔌 Connecting to WebSocket:', wsUrl)
     try {
       ws.value = new WebSocket(wsUrl)
       

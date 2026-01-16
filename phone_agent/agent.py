@@ -162,7 +162,12 @@ class PhoneAgent:
             )
 
             screen_info = MessageBuilder.build_screen_info(current_app)
-            text_content = f"{user_prompt}\n\n{screen_info}"
+            # 🆕 如果是敏感屏幕，添加警告信息
+            if screenshot.is_sensitive:
+                text_content = f"{user_prompt}\n\n⚠️ [SENSITIVE_SCREEN] 当前屏幕被标记为敏感屏幕（可能是支付、密码、登录或其他安全保护应用）。根据安全规则，不应该在此屏幕上进行任何操作。\n\n{screen_info}"
+                logger.warning("🔴 SENSITIVE SCREEN DETECTED in first step - System will instruct AI to stop operations")
+            else:
+                text_content = f"{user_prompt}\n\n{screen_info}"
 
             self._context.append(
                 MessageBuilder.create_user_message(
@@ -172,6 +177,11 @@ class PhoneAgent:
         else:
             screen_info = MessageBuilder.build_screen_info(current_app)
             text_content = f"** Screen Info **\n\n{screen_info}"
+            
+            # 🆕 如果是敏感屏幕，添加警告信息
+            if screenshot.is_sensitive:
+                text_content = f"⚠️ [SENSITIVE_SCREEN] 当前屏幕被标记为敏感屏幕。根据安全规则，不应该在此屏幕上进行任何操作。\n\n{text_content}"
+                logger.warning("🔴 SENSITIVE SCREEN DETECTED - System will instruct AI to stop operations")
 
             self._context.append(
                 MessageBuilder.create_user_message(

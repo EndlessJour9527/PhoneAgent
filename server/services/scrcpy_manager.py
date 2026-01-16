@@ -85,22 +85,25 @@ class ScrcpySession:
             # 步骤 1: 清理已有的 scrcpy server
             self._cleanup_existing_server(adb_address)
             
-            # 步骤 2: 设置 ADB 端口转发（使用动态端口避免冲突）
+            # 步骤 2: 推送 scrcpy-server 到设备
+            self._push_scrcpy_server(adb_address)
+            
+            # 步骤 3: 设置 ADB 端口转发（使用动态端口避免冲突）
             import random
             self.scrcpy_port = random.randint(27183, 27283)  # 随机端口
             self._setup_port_forward(adb_address)
             
-            # 步骤 3: 启动 scrcpy server
+            # 步骤 4: 启动 scrcpy server
             self._start_scrcpy_server(adb_address, bitrate, max_size, framerate)
             
-            # 步骤 4: 连接 TCP socket
+            # 步骤 5: 连接 TCP socket
             self._connect_tcp_socket()
             
             self.is_running = True
             logger.info(f"✅ Scrcpy H.264 stream started on port {self.scrcpy_port}")
             logger.info(f"📊 Config: {max_size}p, {bitrate}bps, {framerate}fps")
             
-            # 步骤 5: 启动 NAL 单元读取线程
+            # 步骤 6: 启动 NAL 单元读取线程
             self._read_thread = threading.Thread(
                 target=self._read_nal_units_from_socket,
                 daemon=True
@@ -113,13 +116,21 @@ class ScrcpySession:
             raise
     
     def _get_adb_address(self) -> str:
-        """获取 ADB 地址"""
-        # device_6100 → localhost:6100
+        """获取 ADB 地址（Docker环境下使用网关IP）"""
+        # device_6100 → 6100
         if self.device_id.startswith("device_"):
             port = self.device_id.replace("device_", "")
-            return f"localhost:{port}"
-        # 已经是 localhost:6100 格式
-        return self.device_id
+        elif ":" in self.device_id:
+            # 已经是 localhost:6100 格式
+            port = self.device_id.split(":")[-1]
+        else:
+            port = self.device_id
+        
+        # 【方案B】Docker环境：FRP隧道端口已在容器内可用，直接使用 localhost
+        # 即使在 Docker 环境，我们也统一使用 localhost
+        return f"localhost:{port}"
+        
+        return f"localhost:{port}"
     
     def _cleanup_existing_server(self, adb_address: str):
         """清理已有的 scrcpy server 进程"""
@@ -130,6 +141,56 @@ class ScrcpySession:
             logger.debug(f"✓ Cleaned up existing scrcpy server for {adb_address}")
         except:
             pass  # 忽略错误（可能没有正在运行的 server）
+    
+    def _push_scrcpy_server(self, adb_address: str):
+        """推送 scrcpy-server 到设备"""
+        try:
+            # Docker环境下，先确保ADB连接已建立
+            if os.path.exists("/.dockerenv"):
+                logger.debug(f"🐳 Docker environment detected, connecting to {adb_address}")
+                connect_cmd = ['adb', 'connect', adb_address]
+                subprocess.run(connect_cmd, capture_output=True, timeout=5)
+                # 等待连接稳定
+                import time
+                time.sleep(1)
+            
+            # 检查设备上是否已有 scrcpy-server
+            check_cmd = ['adb', '-s', adb_address, 'shell', 'test', '-f', '/data/local/tmp/scrcpy-server', '&&', 'echo', 'exists']
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=2)
+            
+            if 'exists' in result.stdout:
+                logger.debug(f"✓ scrcpy-server already exists on {adb_address}")
+                return
+            
+            # 查找 scrcpy-server.jar 文件
+            server_paths = [
+                Path(__file__).parent.parent / 'assets' / 'scrcpy-server.jar',  # server/assets/
+                Path(__file__).parent.parent.parent / 'assets' / 'scrcpy-server.jar',  # 项目根目录/assets/
+            ]
+            
+            server_file = None
+            for path in server_paths:
+                if path.exists():
+                    server_file = path
+                    break
+            
+            if not server_file:
+                raise FileNotFoundError("scrcpy-server.jar not found in server/assets/ or assets/")
+            
+            logger.info(f"📤 Pushing scrcpy-server to {adb_address}...")
+            
+            # 推送文件
+            push_cmd = ['adb', '-s', adb_address, 'push', str(server_file), '/data/local/tmp/scrcpy-server']
+            result = subprocess.run(push_cmd, capture_output=True, text=True, timeout=10)
+            
+            if result.returncode != 0:
+                raise RuntimeError(f"Failed to push scrcpy-server: {result.stderr}")
+            
+            logger.info(f"✅ scrcpy-server pushed successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to push scrcpy-server: {e}")
+            raise
     
     def _setup_port_forward(self, adb_address: str):
         """设置 ADB 端口转发"""
@@ -156,7 +217,7 @@ class ScrcpySession:
             'adb', '-s', adb_address, 'shell',
             'CLASSPATH=/data/local/tmp/scrcpy-server',
             'app_process', '/', 'com.genymobile.scrcpy.Server',
-            '3.3.3',  # scrcpy 版本（需要与设备上的 scrcpy-server 版本匹配）
+            '2.7',  # scrcpy 版本（匹配下载的 v2.7，支持Android 15）
             f'max_size={max_size}',
             f'video_bit_rate={bitrate}',
             f'max_fps={framerate}',
@@ -224,8 +285,12 @@ class ScrcpySession:
             for line in iter(self.process.stderr.readline, b''):
                 if line:
                     decoded = line.decode('utf-8', errors='ignore').strip()
-                    if decoded and 'IClipboard' not in decoded:
-                        logger.debug(f"[scrcpy] {decoded}")
+                    if decoded:
+                        # 显示所有scrcpy输出以便调试
+                        if 'ERROR' in decoded or 'error' in decoded:
+                            logger.error(f"[scrcpy stderr] {decoded}")
+                        else:
+                            logger.info(f"[scrcpy stderr] {decoded}")
         except Exception as e:
             logger.error(f"Error monitoring stderr: {e}")
     

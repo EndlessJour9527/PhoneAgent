@@ -71,16 +71,21 @@ class DeviceManager:
             frp_port = info.get("frp_port", 0)
             if frp_port:
                 try:
-                    # 检查 FRP 端口是否监听
-                    result = subprocess.run(
-                        ["netstat", "-tln"],
-                        capture_output=True,
-                        text=True,
-                        timeout=1
-                    )
-                    if f":{frp_port}" in result.stdout:
-                        frp_connected = True
-                        logger.info(f"FRP port {frp_port} is listening")
+                    # 尝试通过宿主机网关检查端口（Docker环境）
+                    import socket
+                    gateway_ips = ["localhost", "127.0.0.1"]
+                    for gateway_ip in gateway_ips:
+                        try:
+                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            sock.settimeout(0.5)
+                            result = sock.connect_ex((gateway_ip, frp_port))
+                            sock.close()
+                            if result == 0:
+                                frp_connected = True
+                                logger.info(f"FRP port {frp_port} is accessible via {gateway_ip}")
+                                break
+                        except:
+                            continue
                 except Exception as e:
                     logger.warning(f"Failed to check FRP status: {e}")
             

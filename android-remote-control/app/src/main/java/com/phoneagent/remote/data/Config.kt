@@ -27,12 +27,16 @@ data class Config(
     
     /**
      * 获取 WebSocket URL
+     * 如果已保存 wsServerUrl，直接使用
+     * 否则从 serverIp 自动生成（带防御性清理）
      */
     fun getWebSocketUrl(): String {
         return if (wsServerUrl.isNotEmpty()) {
             wsServerUrl
         } else {
-            "ws://$serverIp:9999"
+            // 防御性清理：移除 IP 中的端口（如果用户误输入）
+            val cleanedIp = serverIp.split(":")[0].split("：")[0].trim()
+            "ws://${cleanedIp}:9999"
         }
     }
     

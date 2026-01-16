@@ -79,32 +79,28 @@ class DeviceScanner:
         return f"device_{frp_port}"
     
     async def check_port_listening(self, port: int) -> bool:
-        """检查端口是否有进程监听"""
+        """检查端口是否有进程监听（方案B：统一使用 localhost）"""
+        import socket
+        
+        # 统一使用 socket 连接测试 localhost（FRP 端口在容器内通过 localhost 可访问）
         try:
-            result = subprocess.run(
-                ["netstat", "-tlnp"],
-                capture_output=True,
-                text=True,
-                timeout=2
-            )
-            
-            for line in result.stdout.split('\n'):
-                if f":{port}" in line and "LISTEN" in line:
-                    return True
-            
-            return False
-            
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(("localhost", port))
+            sock.close()
+            return result == 0  # 0 表示连接成功，端口开放
         except Exception as e:
-            logger.debug(f"[DeviceScanner] 检查端口{port}失败: {e}")
+            logger.debug(f"[DeviceScanner] 检查端口{port}失败(socket): {e}")
             return False
     
     async def try_adb_connect(self, port: int) -> Optional[str]:
         """
-        尝试通过ADB连接设备
+        尝试通过ADB连接设备（方案B：统一使用 localhost）
         
         Returns:
             ADB序列号（如 "localhost:6100"）或 None
         """
+        # 统一使用 localhost（FRP 端口在容器内通过 localhost 可访问）
         adb_address = f"localhost:{port}"
         
         try:

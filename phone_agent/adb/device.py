@@ -403,9 +403,26 @@ def _get_adb_prefix(device_id: str | None) -> list:
     🔒 安全性：device_id 会被验证，防止命令注入
     """
     if device_id:
+        # Docker环境下，确保使用 localhost 访问 FRP 隧道
+        if os.path.exists("/.dockerenv") and (device_id.startswith("device_") or "localhost:" in device_id):
+            # device_6104 → 6104
+            if device_id.startswith("device_"):
+                port = device_id.replace("device_", "")
+            # localhost:6104 → 6104
+            elif ":" in device_id:
+                port = device_id.split(":")[-1]
+            else:
+                port = device_id
+            
+            # 【方案B】Docker环境：FRP隧道端口已在容器内可用，直接使用 localhost
+            device_id = f"localhost:{port}"
+        
         # 🔒 验证 device_id 格式，防止命令注入
-        # 合法格式：localhost:6100, 192.168.1.100:5555, emulator-5554, ABCD1234
+        # 合法格式：localhost:6100, 192.168.1.100:5555, emulator-5554, ABCD1234, ...
         if not _is_valid_device_id(device_id):
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"❌ Invalid device_id: {device_id}")
             raise ValueError(f"Invalid device_id format: {device_id}")
         return ["adb", "-s", device_id]
     return ["adb"]
@@ -434,8 +451,9 @@ def _is_valid_device_id(device_id: str) -> bool:
         r'^localhost:\d{1,5}$',           # localhost:6100
         r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$',  # IP:Port
         r'^emulator-\d+$',                # emulator-5554
-        r'^[A-Za-z0-9_-]+$',              # 设备序列号
+        r'^[A-Za-z0-9._-]+$',             # 设备序列号 (允许点号)
         r'^device_\d+$',                  # device_6100 (自定义格式)
+        r'^host\.docker\.internal:\d+$',  # 兼容旧格式 (及特殊环境)
     ]
     
     return any(re.match(pattern, device_id) for pattern in patterns)

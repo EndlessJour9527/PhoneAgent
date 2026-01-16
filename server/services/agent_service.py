@@ -324,6 +324,10 @@ class AgentCallback:
                 logger.warning(f"Failed to capture screenshot for step {step}")
                 return None
             
+            # 🆕 检查敏感屏幕标志
+            if screenshot.is_sensitive:
+                logger.warning(f"🔴 SENSITIVE SCREEN detected at step {step} for task {self.task.task_id}")
+            
             # 保存原始截图
             import base64
             original_path = os.path.join(task_screenshot_dir, f"step_{step:03d}_original.png")
@@ -529,20 +533,45 @@ class AgentService:
             callback = AgentCallback(task, self._websocket_broadcast_callback, loop)
             
             # 获取设备的实际 ADB 地址（从V2扫描器）
+            # ✅ 增加重试机制：如果设备未找到，触发扫描并等待
             adb_device_id = None
             if task.device_id:
                 try:
                     from server.services.device_scanner import get_device_scanner
                     scanner = get_device_scanner()
-                    scanned_devices = scanner.get_scanned_devices()
-                    if task.device_id in scanned_devices:
-                        v2_device = scanned_devices[task.device_id]
-                        adb_device_id = v2_device.adb_address
-                        logger.info(f"⏱️  [Task {task.task_id}] Using device: {adb_device_id}")
+                    
+                    # 最多重试3次，每次等待2秒（共6秒）
+                    max_retries = 3
+                    retry_delay = 2
+                    
+                    for attempt in range(max_retries):
+                        scanned_devices = scanner.get_scanned_devices()
+                        if task.device_id in scanned_devices:
+                            v2_device = scanned_devices[task.device_id]
+                            adb_device_id = v2_device.adb_address
+                            logger.info(f"⏱️  [Task {task.task_id}] Using device from scanner: {adb_device_id} (attempt {attempt + 1})")
+                            break
+                        elif attempt < max_retries - 1:
+                            # 设备未找到，触发一次扫描并等待
+                            logger.warning(f"⚠️  Device {task.device_id} not found in scanned devices (attempt {attempt + 1}/{max_retries}), triggering scan...")
+                            await scanner.scan_once()
+                            await asyncio.sleep(retry_delay)
                     else:
-                        logger.error(f"Task {task.task_id}: Device {task.device_id} not found in scanned devices")
+                        # 所有重试失败，使用 fallback 转换
+                        logger.warning(f"⚠️  Device {task.device_id} not found after {max_retries} scan attempts, using fallback conversion")
+                        # ✅ Fallback: 直接转换 device_id → adb_address
+                        from server.utils import device_id_to_adb_address
+                        adb_device_id = device_id_to_adb_address(task.device_id)
+                        logger.info(f"⏱️  [Task {task.task_id}] Using device (fallback): {adb_device_id}")
                 except Exception as e:
-                    logger.error(f"Failed to get device from scanner: {e}")
+                    logger.error(f"Failed to get device from scanner: {e}, using fallback conversion")
+                    # ✅ Fallback: 即使scanner失败，也要尝试转换
+                    try:
+                        from server.utils import device_id_to_adb_address
+                        adb_device_id = device_id_to_adb_address(task.device_id)
+                        logger.info(f"⏱️  [Task {task.task_id}] Using device (exception fallback): {adb_device_id}")
+                    except Exception as fallback_error:
+                        logger.error(f"Fallback conversion also failed: {fallback_error}")
             
             # 构建模型配置
             model_config_dict = task.model_config or {}
@@ -759,6 +788,16 @@ class AgentService:
             task.model_name = model_params["model_name"]
             # ⚠️ 已废弃XML/混合内核，统一使用vision
             task.kernel_mode = "vision"  # 强制设置为vision，不再使用auto/xml
+            
+            # 🚨 最后检查：确保 adb_device_id 不为空
+            if not adb_device_id:
+                error_msg = f"Failed to resolve ADB address for device {task.device_id}"
+                logger.error(f"❌ {error_msg}")
+                task.status = TaskStatus.FAILED
+                task.result_message = error_msg
+                task.completed_at = datetime.now(timezone.utc)
+                await self._broadcast_task_status()
+                return
             
             # 构建 Agent 配置
             agent_config = AgentConfig(

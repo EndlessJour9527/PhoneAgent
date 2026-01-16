@@ -61,6 +61,9 @@ def get_screenshot(
         like payment apps with FLAG_SECURE), automatically falls back to yadb 
         force screenshot which bypasses these restrictions.
     """
+    # 🆕 日志：记录传入的参数
+    logger.info(f"📸 get_screenshot called with device_id={device_id}, adb_host={adb_host}, adb_port={adb_port}")
+    
     # 如果强制使用 yadb
     if force_yadb and YADB_AVAILABLE and USE_YADB_FORCE_SCREENSHOT:
         logger.info("Using yadb force screenshot (forced mode)")
@@ -108,35 +111,42 @@ def _get_screenshot_standard(
         # 检查是否成功
         if result.returncode != 0:
             error_msg = result.stderr.decode('utf-8', errors='ignore')
-            logger.warning(f"Standard screenshot failed: {error_msg}")
+            logger.warning(f"❌ Standard screenshot failed with return code {result.returncode}")
+            logger.warning(f"   Error message: {error_msg}")
             
             # 检测是否是敏感页面（FLAG_SECURE）
             is_sensitive = "Status: -1" in error_msg or "FLAG_SECURE" in error_msg
+            logger.warning(f"   Marking as sensitive: {is_sensitive}")
             return _create_fallback_screenshot(is_sensitive=is_sensitive)
 
         # 直接从 stdout 获取 PNG 数据
         image_data = result.stdout
+        logger.info(f"✅ Screenshot captured: {len(image_data)} bytes")
         
         if not image_data or len(image_data) < 100:
-            logger.warning(f"Screenshot data too small: {len(image_data)} bytes")
+            logger.warning(f"❌ Screenshot data too small: {len(image_data)} bytes, marking as sensitive")
             # ✅ 修复：数据过小也可能是敏感屏幕
             return _create_fallback_screenshot(is_sensitive=True)
 
         # 使用 BytesIO 从内存中加载图片
         img = Image.open(BytesIO(image_data))
         width, height = img.size
+        logger.info(f"   Image dimensions: {width}x{height}")
 
         # ✅ 新增：检测是否是全黑或几乎全黑的图片（可能是敏感屏幕）
         # 计算平均亮度
         grayscale = img.convert('L')  # 转为灰度
         pixels = list(grayscale.getdata())
         avg_brightness = sum(pixels) / len(pixels)
+        logger.info(f"   Average brightness: {avg_brightness:.1f}")
         
         # 如果平均亮度低于10（几乎全黑），标记为敏感
         if avg_brightness < 10:
-            logger.warning(f"Screenshot is almost black (brightness: {avg_brightness:.1f}), marking as sensitive")
+            logger.warning(f"❌ Screenshot is almost black (brightness: {avg_brightness:.1f}), marking as sensitive")
             return _create_fallback_screenshot(is_sensitive=True)
 
+        logger.info(f"✅ Screenshot passed all checks, returning as normal")
+        
         # 直接对原始数据进行 base64 编码
         base64_data = base64.b64encode(image_data).decode("utf-8")
 
@@ -149,10 +159,11 @@ def _get_screenshot_standard(
         )
 
     except subprocess.TimeoutExpired:
-        logger.error(f"Screenshot timeout after {timeout}s")
+        logger.error(f"❌ Screenshot timeout after {timeout}s, marking as sensitive")
         return _create_fallback_screenshot(is_sensitive=True)  # ✅ 超时也标记为敏感
     except Exception as e:
-        logger.error(f"Screenshot error: {e}", exc_info=True)
+        logger.error(f"❌ Screenshot error: {e}", exc_info=True)
+        logger.error(f"   Marking as sensitive due to exception")
         return _create_fallback_screenshot(is_sensitive=True)  # ✅ 异常也标记为敏感
 
 
@@ -194,15 +205,37 @@ def _get_screenshot_yadb(
 
 def _get_adb_prefix(device_id: str | None, adb_host: str | None = None, adb_port: int | None = None) -> list:
     """Get ADB command prefix with optional device specifier."""
+    logger.debug(f"🔧 _get_adb_prefix input: device_id={device_id}, adb_host={adb_host}, adb_port={adb_port}")
+    
     cmd = ["adb"]
     
     # FRP 隧道模式（优先）
     if adb_host and adb_port:
         cmd.extend(["-H", adb_host, "-P", str(adb_port)])
+        logger.debug(f"   Using FRP tunnel mode: -H {adb_host} -P {adb_port}")
     # 直接连接模式
     elif device_id:
+        # Docker环境下，需要将localhost替换为网关IP
+        if os.path.exists("/.dockerenv") and ("localhost:" in device_id or device_id.startswith("device_")):
+            # device_6104 → 6104
+            if device_id.startswith("device_"):
+                port = device_id.replace("device_", "")
+            # localhost:6104 → 6104
+            elif ":" in device_id:
+                port = device_id.split(":")[-1]
+            else:
+                port = device_id
+            
+            # 【方案B】Docker环境：FRP隧道端口已在容器内可用，直接使用 localhost
+            device_id = f"localhost:{port}"
+            logger.debug(f"🐳 Docker environment: using {device_id} for tunnel")
+        
         cmd.extend(["-s", device_id])
+        logger.debug(f"   Added -s {device_id}")
+    else:
+        logger.warning(f"⚠️  No device specified! This will cause 'more than one device' error if multiple devices are connected.")
     
+    logger.debug(f"🔧 Final ADB command: {' '.join(cmd)}")
     return cmd
 
 

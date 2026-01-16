@@ -184,9 +184,19 @@ class SetupWizardActivity : AppCompatActivity() {
             
             // 1. 后端服务器IP（必填）
             // 作用: FRP服务器(7000) + WebSocket服务器(9999) 所在IP
-            val serverIp = etServerIp.text?.toString()?.trim() ?: ""
+            var serverIp = etServerIp.text?.toString()?.trim() ?: ""
             if (serverIp.isEmpty()) {
                 Toast.makeText(this, "请输入服务器 IP 地址", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // 清理 IP：移除端口（如果用户误输入了冒号+端口）
+            // 兼容半角冒号和全角冒号: : 和 ：
+            serverIp = serverIp.split(":")[0].split("：")[0].trim()
+            
+            // 基础验证：检查是否看起来像有效的 IP
+            if (!isValidIpFormat(serverIp)) {
+                Toast.makeText(this, "服务器 IP 格式无效，请只输入 IP 地址（不要输入端口）", Toast.LENGTH_SHORT).show()
                 return
             }
             
@@ -238,6 +248,7 @@ class SetupWizardActivity : AppCompatActivity() {
                     wsServerUrl = "ws://${serverIp}:9999/ws/device/${remotePort}"
                     
                     Timber.tag(TAG).i("✅ 使用直连IP模式")
+                    Timber.tag(TAG).i("   清理后的服务器IP: $serverIp")
                     Timber.tag(TAG).i("   WebSocket URL: $wsServerUrl")
                     Timber.tag(TAG).i("   说明: 直接连接服务器9999端口")
                     Timber.tag(TAG).i("   FRP远程端口: $remotePort")
@@ -269,7 +280,7 @@ class SetupWizardActivity : AppCompatActivity() {
             // 保存配置
             val config = Config(
                 serverIp = serverIp,
-                serverPort = 7000,  // FRP服务器端口固定为7000
+                serverPort = 7001,  // FRP服务器端口固定为7000
                 frpToken = frpToken,
                 wsServerUrl = wsServerUrl,
                 deviceId = deviceId,
@@ -314,6 +325,31 @@ class SetupWizardActivity : AppCompatActivity() {
             Timber.tag(TAG).e(e, "Error in onFinishClicked")
             Toast.makeText(this, "操作失败: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+    
+    /**
+     * 验证 IP 地址格式（简单检查）
+     * 接受: IPv4 (192.168.1.1) 和 IPv6 地址
+     */
+    private fun isValidIpFormat(ip: String): Boolean {
+        // 移除所有空白
+        val cleanIp = ip.trim()
+        
+        // IPv4 检查：应该包含数字和点，形如 x.x.x.x
+        val ipv4Regex = Regex("""^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$""")
+        if (ipv4Regex.matches(cleanIp)) {
+            return true
+        }
+        
+        // IPv6 检查：包含冒号（简单检查）
+        if (cleanIp.contains(":") && !cleanIp.contains("：")) {
+            // 有半角冒号，可能是 IPv6，简单接受
+            // 更严格的验证可以在运行时尝试连接时发现
+            return true
+        }
+        
+        // 其他格式不接受
+        return false
     }
     
     /**

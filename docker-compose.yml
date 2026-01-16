@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  phoneagent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FRP_VERSION: 0.52.0
+    
+    container_name: phoneagent-server
+    
+    # 加载 .env 配置
+    env_file:
+      - .env
+    
+    environment:
+      PYTHONUNBUFFERED: 1
+      SERVER_HOST: 0.0.0.0
+    
+    # ============================================
+    # 端口映射 - 所有接口可访问（不仅限 localhost）
+    # ============================================
+    ports:
+      # API Server + Frontend WebSocket + Scrcpy WebSocket
+      - "0.0.0.0:8000:8000"
+      # Device WebSocket
+      - "0.0.0.0:9999:9999"
+      # FRP Server
+      - "0.0.0.0:7001:7000"  # 宿主机7001→容器7000 (避免与macOS Control Center冲突)
+      # FRP Dashboard
+      - "0.0.0.0:7501:7500"
+      # FRP Client Ports (devices)
+      - "0.0.0.0:6100-6199:6100-6199"
+    
+    # 数据卷挂载
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./frp:/app/frp
+      - ./.env:/app/.env:ro
+      # 挂载宿主机的ADB密钥，使容器内ADB可以复用已授权的设备
+      - ~/.android:/root/.android:ro
+      # 🆕 开发模式：挂载源代码以便实时生效（无需重新构建）
+      - ./phone_agent:/app/phone_agent
+      - ./server:/app/server
+    
+    # ============================================
+    # 网络配置 - 使用 bridge 模式
+    # ============================================
+    networks:
+      - phoneagent-network
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  web:
+    image: node:20-alpine
+    container_name: phoneagent-web
+    working_dir: /app
+    volumes:
+      - ./web:/app
+    ports:
+      - "0.0.0.0:5173:5173"
+    environment:
+      VITE_API_HOST: "phoneagent-server"
+      VITE_API_PORT: "8000"
+      VITE_WS_PORT: "9999"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - phoneagent-network
+    depends_on:
+      - phoneagent
+    restart: unless-stopped
+
+networks:
+  phoneagent-network:
+    driver: bridge

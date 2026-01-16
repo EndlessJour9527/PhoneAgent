@@ -175,7 +175,7 @@ async def get_websocket_device_status():
         "http://127.0.0.1:9999/devices",
         "http://localhost:9999/devices",
         # 兜底：尝试通过Docker网关或外网IP访问
-        "http://host.docker.internal:9999/devices",  # Docker Desktop
+        "http://localhost:9999/devices",  # Docker 及 本地环境均可用 localhost
         "http://172.17.0.1:9999/devices",  # Docker默认网关
     ]
     
@@ -218,75 +218,106 @@ async def get_websocket_device_status():
 @router.get("/devices/scanned", tags=["📱 设备管理"])
 async def list_scanned_devices():
     """
-    获取扫描到的设备列表（优化版 - 添加缓存）
+    获取扫描到的设备列表
     
-    服务端主动扫描FRP端口发现的设备
-    结合WebSocket连接状态
+    优先使用 WebSocket 服务器的实时连接设备
+    备用：使用端口扫描发现的设备
     """
-    scanner = get_device_scanner()
+    # 首先尝试从 WebSocket 服务器直接获取设备列表
+    import os
+    import httpx
     
-    # ✅ 优化：直接返回缓存的设备列表，不触发新扫描
-    online_devices = scanner.get_online_devices()
-    
-    # 从WebSocket服务器查询设备状态（异步）
-    ws_device_status = await get_websocket_device_status()
+    ws_host = os.getenv("WEBSOCKET_HOST", "127.0.0.1")
+    ws_port = os.getenv("WEBSOCKET_PORT", "9999")
     
     devices = []
-    for device_id, device in online_devices.items():
-        # 查询WebSocket连接状态（优先按device_id匹配，其次按frp_port匹配）
-        ws_connected = (
-            ws_device_status["by_id"].get(device_id, False) or  # 按device_id匹配（device_{frp_port}格式）
-            ws_device_status["by_port"].get(device.frp_port, False)  # 按frp_port匹配（备用）
-        )
-        
-        # 只包含成功获取的字段，None值不返回
-        device_data = {
-            "device_id": device.device_id,
-            "device_name": device.device_name,  # 使用设备名称
-            "status": "online" if device.is_online else "offline",
-            "frp_port": device.frp_port,
-            "adb_address": device.adb_address,
-            # 连接状态
-            "frp_connected": True,  # 能扫描到说明FRP已连接
-            "ws_connected": ws_connected,  # 从WebSocket管理器查询实际连接状态
-            # 任务统计（V2暂不支持）
-            "current_task": None,
-            "total_tasks": 0,
-            "success_tasks": 0,
-            "failed_tasks": 0,
-            "success_rate": 0.0,
-            # 时间字段（兼容V1命名）
-            "registered_at": device.discovered_at.isoformat(),
-            "last_active": device.last_seen.isoformat(),
-            "discovered_at": device.discovered_at.isoformat(),
-            "last_seen": device.last_seen.isoformat(),
-            "method": "port_scanning"  # 标识这是扫描发现的
-        }
-        
-        # 只添加成功获取的字段（不为None）
-        if device.model:
-            device_data["model"] = device.model
-        if device.android_version:
-            device_data["android_version"] = device.android_version
-        if device.screen_resolution:
-            device_data["screen_resolution"] = device.screen_resolution
-        if device.battery is not None:
-            device_data["battery"] = device.battery
-        if device.memory_total:
-            device_data["memory_total"] = device.memory_total
-        if device.memory_available:
-            device_data["memory_available"] = device.memory_available
-        if device.storage_total:
-            device_data["storage_total"] = device.storage_total
-        if device.storage_available:
-            device_data["storage_available"] = device.storage_available
-        
-        devices.append(device_data)
+    ws_available = False
     
+    # 尝试从 WebSocket 服务器获取设备
+    try:
+        ws_url = f"http://{ws_host}:{ws_port}/devices"
+        logger.info(f"📱 Querying WebSocket server: {ws_url}")
+        
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            response = await client.get(ws_url)
+        
+        if response.status_code == 200:
+            ws_data = response.json()
+            ws_available = True
+            
+            if ws_data.get("devices"):
+                logger.info(f"✅ Found {len(ws_data['devices'])} devices from WebSocket server")
+                for ws_device in ws_data["devices"]:
+                    device_data = {
+                        "device_id": ws_device.get("device_id", f"device_{ws_device.get('frp_port', 0)}"),
+                        "device_name": ws_device.get("device_name", "Unknown Device"),
+                        "status": ws_device.get("status", "online"),
+                        "frp_port": ws_device.get("frp_port"),
+                        "adb_address": f"127.0.0.1:{ws_device.get('frp_port', 0)}",
+                        "frp_connected": ws_device.get("frp_connected", False),
+                        "ws_connected": ws_device.get("ws_connected", False),
+                        "model": ws_device.get("model", "Unknown"),
+                        "android_version": ws_device.get("android_version", "Unknown"),
+                        "screen_resolution": ws_device.get("screen_resolution", "Unknown"),
+                        "battery": ws_device.get("battery", 0),
+                        "network": ws_device.get("network", "unknown"),
+                        "current_task": None,
+                        "total_tasks": 0,
+                        "success_tasks": 0,
+                        "failed_tasks": 0,
+                        "success_rate": 0.0,
+                        "connected_at": ws_device.get("connected_at"),
+                        "last_heartbeat": ws_device.get("last_heartbeat"),
+                        "method": "websocket"
+                    }
+                    devices.append(device_data)
+            else:
+                logger.info("⚠️  WebSocket server returned empty devices list")
+        else:
+            logger.warning(f"⚠️  WebSocket server returned status {response.status_code}")
+            
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to query WebSocket server ({ws_host}:{ws_port}): {e}")
+    
+    # 如果 WebSocket 没有返回设备，使用端口扫描作为备选
+    if not devices:
+        logger.info("📡 Falling back to port scanning for devices")
+        try:
+            scanner = get_device_scanner()
+            online_devices = scanner.get_online_devices()
+            
+            for device_id, device in online_devices.items():
+                device_data = {
+                    "device_id": device.device_id,
+                    "device_name": device.device_name,
+                    "status": "online" if device.is_online else "offline",
+                    "frp_port": device.frp_port,
+                    "adb_address": device.adb_address,
+                    "frp_connected": True,
+                    "ws_connected": False,
+                    "model": device.model or "Unknown",
+                    "android_version": device.android_version or "Unknown",
+                    "screen_resolution": device.screen_resolution or "Unknown",
+                    "battery": device.battery or 0,
+                    "current_task": None,
+                    "total_tasks": 0,
+                    "success_tasks": 0,
+                    "failed_tasks": 0,
+                    "success_rate": 0.0,
+                    "registered_at": device.discovered_at.isoformat(),
+                    "last_active": device.last_seen.isoformat(),
+                    "method": "port_scanning"
+                }
+                devices.append(device_data)
+                
+        except Exception as e:
+            logger.error(f"❌ Error during port scanning: {e}")
+    
+    logger.info(f"✅ Returning {len(devices)} devices")
     return {
         "devices": devices,
         "count": len(devices),
-        "method": "active_scanning"
+        "method": "websocket" if ws_available else "port_scanning"
     }
 
 

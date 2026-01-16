@@ -23,7 +23,7 @@ class ConfigRepository(private val context: Context) {
     val configFlow: Flow<Config> = context.dataStore.data.map { preferences ->
         Config(
             serverIp = preferences[SERVER_IP] ?: "",
-            serverPort = preferences[SERVER_PORT] ?: 7000,
+            serverPort = preferences[SERVER_PORT] ?: 7001,
             frpToken = preferences[FRP_TOKEN] ?: "",
             deviceId = preferences[DEVICE_ID] ?: "",
             deviceName = preferences[DEVICE_NAME] ?: "",

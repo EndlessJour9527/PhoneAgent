@@ -105,5 +105,19 @@ def restore_keyboard(ime: str, device_id: str | None = None) -> None:
 def _get_adb_prefix(device_id: str | None) -> list:
     """Get ADB command prefix with optional device specifier."""
     if device_id:
+        # Docker环境下，需要将localhost替换为网关IP
+        if os.path.exists("/.dockerenv") and ("localhost:" in device_id or device_id.startswith("device_")):
+            # device_6104 → 6104
+            if device_id.startswith("device_"):
+                port = device_id.replace("device_", "")
+            # localhost:6104 → 6104
+            elif ":" in device_id:
+                port = device_id.split(":")[-1]
+            else:
+                port = device_id
+            
+            # 【方案B】Docker环境：FRP隧道端口已在容器内可用，直接使用 localhost
+            device_id = f"localhost:{port}"
+        
         return ["adb", "-s", device_id]
     return ["adb"]
